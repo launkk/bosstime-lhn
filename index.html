@@ -15,17 +15,17 @@
     .container {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       border-bottom: 1px solid #ccc;
-      padding: 6px 0 14px;
+      padding: 6px 0;
       margin-bottom: 6px;
       font-size: 13px;
     }
     .label {
-      color: black;
+      color: red;
       font-size: 12px;
-      margin-bottom: 4px;
-      text-align: right;
+      margin-bottom: 2px;
+      text-align: left;
     }
     .col {
       display: flex;
@@ -37,31 +37,21 @@
     }
     .time-wrap {
       display: flex;
-      align-items: flex-start;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-    .time-col-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-    .time-label-col {
-      display: flex;
       align-items: center;
       justify-content: flex-end;
       gap: 8px;
+      min-width: 100px;
     }
     .time-col {
+      min-width: 60px;
       text-align: right;
-      min-width: 70px;
     }
     .spawn-col {
-      text-align: right;
       color: green;
       font-weight: bold;
       font-size: 12px;
       min-width: 50px;
+      text-align: left;
     }
     @media (max-width: 600px) {
       .container {
@@ -70,9 +60,6 @@
       }
       .name-col {
         flex: 1 0 50%;
-      }
-      .time-wrap {
-        flex: 0 0 auto;
       }
     }
   </style>
@@ -128,13 +115,11 @@
               <div>${nombre}</div>
             </div>
             <div class="time-wrap">
-              <div class="time-col-wrapper">
-                <div class="label">Next:</div>
-                <div class="time-label-col">
-                  <div class="time-col">${spawnTime}</div>
-                  <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
-                </div>
+              <div class="col">
+                <div class="label">Next Spawn:</div>
+                <div class="time-col">${spawnTime}</div>
               </div>
+              <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
           `;
           header.appendChild(wrapper);
@@ -151,13 +136,8 @@
           wrapper.innerHTML = `
             <div class="name-col">${nombre}</div>
             <div class="time-wrap">
-              <div class="time-col-wrapper">
-                <div class="label">Next:</div>
-                <div class="time-label-col">
-                  <div class="time-col">${spawnTime}</div>
-                  <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
-                </div>
-              </div>
+              <div class="time-col">${spawnTime}</div>
+              <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
           `;
           container.appendChild(wrapper);
