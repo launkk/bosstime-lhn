@@ -34,6 +34,11 @@
       flex: 1;
       word-break: break-word;
     }
+    .time-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
     .time-col {
       text-align: right;
       min-width: 70px;
@@ -45,11 +50,6 @@
       font-size: 12px;
       min-width: 50px;
       padding-left: 10px;
-    }
-    .time-spawn-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
     }
     .spawn-label {
       font-size: 12px;
@@ -64,6 +64,9 @@
       }
       .name-col {
         flex: 1 0 50%;
+      }
+      .time-wrap {
+        flex: 0 0 auto;
       }
       .time-col {
         flex: 0 0 auto;
@@ -124,9 +127,11 @@
               <div class="label">Boss Name:</div>
               <div>${nombre}</div>
             </div>
-            <div class="time-spawn-row">
-              <div class="spawn-label">Next:</div>
-              <div class="time-col">${spawnTime}</div>
+            <div class="time-wrap">
+              <div class="col">
+                <div class="label">Next Spawn:</div>
+                <div class="time-col">${spawnTime}</div>
+              </div>
               <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
           `;
@@ -143,8 +148,7 @@
           wrapper.className = "container";
           wrapper.innerHTML = `
             <div class="name-col">${nombre}</div>
-            <div class="time-spawn-row">
-              <div class="spawn-label"></div>
+            <div class="time-wrap">
               <div class="time-col">${spawnTime}</div>
               <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
