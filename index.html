@@ -39,65 +39,75 @@
     <thead>
       <tr>
         <th>Boss Name</th>
-        <th>Time Until Spawn</th>
+        <th>Time Since Spawn</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <script>
-    let bossData = [];
+ <script>
+  let bossData = [];
 
-    function updateCountdowns() {
-      const tableBody = document.querySelector("#boss-table tbody");
-      tableBody.innerHTML = "";
+  function updateCountdowns() {
+    const tableBody = document.querySelector("#boss-table tbody");
+    tableBody.innerHTML = "";
 
-      const now = new Date();
+    const now = Date.now();
 
-      bossData.forEach(boss => {
-        // Convert boss time assuming it's in GMT-3
-        const spawnTime = new Date(new Date(boss.bosstime).getTime() + 3 * 60 * 60 * 1000);
-        const diffMs = spawnTime - now;
+    bossData.forEach(boss => {
+      const bornAgoMs = parseInt(boss.bornAgoSeconds) * 1000;
+      const spawnTime = new Date(now - bornAgoMs);
+      const diffMs = now - spawnTime;
 
-        let countdown = "<span style='color: red;'>Spawned</span>";
-        if (diffMs > 0) {
-          const mins = Math.floor(diffMs / 60000);
-          const secs = Math.floor((diffMs % 60000) / 1000);
-          countdown = `${mins}m ${secs}s`;
-        }
+      const mins = Math.floor(diffMs / 60000);
+      const secs = Math.floor((diffMs % 60000) / 1000);
+      const countdown = `Born ${mins}m ${secs}s ago`;
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${boss.bossname}</td>
-          <td>${countdown}</td>
-        `;
-        tableBody.appendChild(row);
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${boss.name}</td>
+        <td>${countdown}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  async function fetchBossData() {
+    try {
+      const proxyUrl = "https://api.allorigins.win/raw?url=" +
+        encodeURIComponent("https://laghaimnew.com/MAIN_/events.php");
+
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error("Failed to fetch HTML");
+
+      const htmlText = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, "text/html");
+
+      const bossEls = doc.querySelectorAll(".boss-item.vivo");
+
+      bossData = Array.from(bossEls).map(el => {
+        const name = el.querySelector(".nombre")?.textContent.trim();
+        const timeAttr = el.querySelector(".tiempo")?.getAttribute("data-time");
+        return {
+          name,
+          bornAgoSeconds: Math.abs(parseInt(timeAttr || "0"))
+        };
       });
+
+      const updatedAt = document.querySelector("#last-updated");
+      updatedAt.textContent = "Last updated: " + new Date().toLocaleTimeString();
+
+      updateCountdowns();
+    } catch (err) {
+      console.error("Failed to fetch boss data:", err);
     }
+  }
 
-    async function fetchBossData() {
-      try {
-        const target = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
-        const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(target);
+  fetchBossData();
+  setInterval(fetchBossData, 30000); // refresh every 30s
+  setInterval(updateCountdowns, 1000); // update countdown every 1s
+</script>
 
-        const response = await fetch(proxy);
-        if (!response.ok) throw new Error("Proxy fetch failed");
-
-        const data = await response.json();
-        bossData = data;
-
-        const updatedAt = document.querySelector("#last-updated");
-        updatedAt.textContent = "Last updated: " + new Date().toLocaleTimeString();
-
-        updateCountdowns();
-      } catch (err) {
-        console.error("Failed to fetch boss data:", err);
-      }
-    }
-
-    fetchBossData();
-    setInterval(fetchBossData, 30000); // refresh every 30s
-    setInterval(updateCountdowns, 1000); // update countdown every 1s
-  </script>
 </body>
 </html>
