@@ -36,7 +36,7 @@
   <script>
     async function fetchAndDisplayBosses() {
       try {
-        const url = "https://api.allorigins.win/raw?disableCache=true&url=" + encodeURIComponent("https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now());
+        const url = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch data");
         const data = await res.json();
