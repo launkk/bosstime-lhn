@@ -25,7 +25,6 @@
       color: red;
       font-size: 12px;
       margin-bottom: 2px;
-      text-align: left;
     }
     .col {
       display: flex;
@@ -37,7 +36,7 @@
     }
     .time-wrap {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: flex-end;
       gap: 8px;
       min-width: 100px;
@@ -51,7 +50,7 @@
       font-weight: bold;
       font-size: 12px;
       min-width: 50px;
-      text-align: right;
+      text-align: left;
     }
     @media (max-width: 600px) {
       .container {
@@ -115,8 +114,8 @@
               <div>${nombre}</div>
             </div>
             <div class="time-wrap">
-              <div class="col">
-                <div class="label">Next:</div>
+              <div class="col" style="align-items: flex-end;">
+                <div class="label" style="text-align: right;">Next:</div>
                 <div class="time-col">${spawnTime}</div>
               </div>
               <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
