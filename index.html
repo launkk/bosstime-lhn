@@ -15,8 +15,8 @@
       display: flex;
       justify-content: space-between;
       border-bottom: 1px solid #ccc;
-      padding: 20px 0;
-      margin-bottom: 20px;
+      padding: 10px 0;
+      margin-bottom: 10px;
     }
     .label {
       color: red;
@@ -32,6 +32,7 @@
 </head>
 <body>
   <h2>Boss Spawn Viewer</h2>
+  <div id="boss-header"></div>
   <div id="boss-list"></div>
 
   <script>
@@ -43,13 +44,36 @@
         if (!res.ok) throw new Error("Failed to fetch data");
         const data = await res.json();
 
-        const container = document.getElementById("boss-list");
-        container.innerHTML = "";
-
         const bosses = Array.isArray(data) ? data : Object.values(data);
         bosses.sort((a, b) => (a.bossname || '').localeCompare(b.bossname || ''));
 
-        bosses.forEach(boss => {
+        const header = document.getElementById("boss-header");
+        const container = document.getElementById("boss-list");
+        header.innerHTML = "";
+        container.innerHTML = "";
+
+        if (bosses.length > 0) {
+          const firstBoss = bosses[0];
+          const nombre = firstBoss.bossname || 'Unknown';
+          const bosstime = firstBoss.bosstime || 'N/A';
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "container";
+          wrapper.innerHTML = `
+            <div class="col">
+              <div class="label">boss name</div>
+              <div>${nombre}</div>
+            </div>
+            <div class="col">
+              <div class="label">next spawn</div>
+              <div>${bosstime}</div>
+            </div>
+          `;
+          header.appendChild(wrapper);
+        }
+
+        bosses.forEach((boss, index) => {
+          if (index === 0) return; // Skip the first one
           const nombre = boss.bossname || 'Unknown';
           const bosstime = boss.bosstime || 'N/A';
 
@@ -58,11 +82,9 @@
 
           wrapper.innerHTML = `
             <div class="col">
-              <div class="label">boss name</div>
               <div>${nombre}</div>
             </div>
             <div class="col">
-              <div class="label">next spawn</div>
               <div>${bosstime}</div>
             </div>
           `;
