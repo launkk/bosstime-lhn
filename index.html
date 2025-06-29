@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Laghaim Boss Spawn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Laghaim Boss Spawn Viewer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,18 +11,21 @@
       color: #000;
       padding: 20px;
     }
-    .row {
+    h2 {
+      margin-bottom: 10px;
+    }
+    .header, .row {
       display: flex;
       justify-content: space-between;
-      border-bottom: 1px solid #ccc;
       padding: 5px 0;
     }
     .header {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
       font-weight: bold;
       color: red;
+      border-bottom: 1px solid #000;
+    }
+    .row {
+      border-bottom: 1px solid #ccc;
     }
     .cell {
       width: 48%;
@@ -40,36 +43,28 @@
   <script>
     async function fetchAndDisplayBosses() {
       try {
-        const proxyUrl = "https://api.allorigins.win/raw?url=";
-        const targetUrl = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
-        const res = await fetch(proxyUrl + encodeURIComponent(targetUrl));
-        if (!res.ok) throw new Error("Failed to fetch data");
-        const data = await res.json();
+        const proxy = "https://api.allorigins.win/raw?url=";
+        const url = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?" + Date.now();
+        const response = await fetch(proxy + encodeURIComponent(url));
+        if (!response.ok) throw new Error("Failed to fetch");
+        const data = await response.json();
 
         const container = document.getElementById("boss-list");
         container.innerHTML = "";
 
-        const now = Date.now();
-
         data.forEach(boss => {
-          const nombre = boss.name || 'Unknown';
-          const bornAgo = Math.abs(parseInt(boss.segundos) || 0) * 1000;
-          const respawn = parseInt(boss.respawn) || 3600;
-          const nextSpawn = new Date(now + (respawn * 1000 - bornAgo));
-
+          const name = boss.bossname || "Unknown";
+          const time = boss.bosstime || "-";
           const row = document.createElement("div");
           row.className = "row";
-
           row.innerHTML = `
-            <div class="cell">${nombre}</div>
-            <div class="cell">${nextSpawn.toLocaleDateString('en-GB')} ${nextSpawn.toTimeString().slice(0, 5)}</div>
+            <div class="cell">${name}</div>
+            <div class="cell">${time}</div>
           `;
-
           container.appendChild(row);
         });
-
       } catch (err) {
-        console.error("Error fetching boss data:", err);
+        console.error("Error loading boss data:", err);
       }
     }
 
