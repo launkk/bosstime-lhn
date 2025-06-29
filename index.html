@@ -15,7 +15,7 @@
     .container {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       border-bottom: 1px solid #ccc;
       padding: 6px 0;
       margin-bottom: 6px;
@@ -25,6 +25,7 @@
       color: black;
       font-size: 12px;
       margin-bottom: 2px;
+      text-align: left;
     }
     .col {
       display: flex;
@@ -45,12 +46,18 @@
       flex-direction: column;
       align-items: flex-end;
     }
+    .time-label-col {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
     .time-col {
-      text-align: right;
+      text-align: left;
       min-width: 70px;
     }
     .spawn-col {
-      text-align: right;
+      text-align: left;
       color: green;
       font-weight: bold;
       font-size: 12px;
@@ -122,10 +129,14 @@
             </div>
             <div class="time-wrap">
               <div class="time-col-wrapper">
-                <div class="label">Next Spawn:</div>
-                <div class="time-col">${spawnTime}</div>
+                <div class="time-label-col">
+                  <div class="label">Next Spawn:</div>
+                </div>
+                <div class="time-label-col">
+                  <div class="time-col">${spawnTime}</div>
+                  <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
+                </div>
               </div>
-              <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
           `;
           header.appendChild(wrapper);
@@ -143,9 +154,11 @@
             <div class="name-col">${nombre}</div>
             <div class="time-wrap">
               <div class="time-col-wrapper">
-                <div class="time-col">${spawnTime}</div>
+                <div class="time-label-col">
+                  <div class="time-col">${spawnTime}</div>
+                  <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
+                </div>
               </div>
-              <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
           `;
           container.appendChild(wrapper);
