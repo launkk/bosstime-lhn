@@ -52,7 +52,7 @@
         const now = Date.now();
 
         data.forEach(boss => {
-          const nombre = boss.nombre || 'Unknown';
+          const nombre = boss.name || 'Unknown';
           const bornAgo = Math.abs(parseInt(boss.segundos) || 0) * 1000;
           const respawn = parseInt(boss.respawn) || 3600;
           const nextSpawn = new Date(now + (respawn * 1000 - bornAgo));
