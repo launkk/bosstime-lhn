@@ -15,6 +15,7 @@
     .container {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       border-bottom: 1px solid #ccc;
       padding: 6px 0;
       margin-bottom: 6px;
@@ -35,33 +36,29 @@
     }
     .time-col {
       text-align: right;
-      flex-shrink: 0;
-      min-width: 60px;
+      min-width: 70px;
     }
     .spawn-col {
       text-align: right;
-      flex-shrink: 0;
       color: green;
       font-weight: bold;
       font-size: 12px;
       min-width: 50px;
-      padding-left: 6px;
+      margin-left: 10px;
     }
     @media (max-width: 600px) {
       .container {
         flex-direction: row;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
       }
       .name-col {
-        flex: 1 0 60%;
+        flex: 1 0 50%;
       }
       .time-col {
-        flex: 1 0 20%;
-        text-align: right;
+        flex: 0 0 auto;
       }
       .spawn-col {
-        flex: 1 0 20%;
-        text-align: right;
+        flex: 0 0 auto;
       }
     }
   </style>
@@ -121,9 +118,7 @@
               <div class="label">Next Spawn:</div>
               <div>${spawnTime}</div>
             </div>
-            <div class="spawn-col">
-              ${spawned ? 'spawn' : ''}
-            </div>
+            <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
           `;
           header.appendChild(wrapper);
         }
