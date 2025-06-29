@@ -28,6 +28,11 @@
       flex-direction: column;
       width: 48%;
     }
+    .spawned {
+      color: green;
+      font-weight: bold;
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
@@ -40,7 +45,11 @@
       const utcDate = new Date(utcDateString);
       if (isNaN(utcDate)) return 'Invalid Date';
       const gmtPlus7Date = new Date(utcDate.getTime() + 10 * 60 * 60 * 1000); // GMT-3 to GMT+7 = +10 hours
-      return gmtPlus7Date.toLocaleString();
+      return gmtPlus7Date;
+    }
+
+    function formatTimeOnly(date) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     async function fetchAndDisplayBosses() {
@@ -58,6 +67,8 @@
           return aTime - bTime;
         });
 
+        const now = new Date();
+
         const header = document.getElementById("boss-header");
         const container = document.getElementById("boss-list");
         header.innerHTML = "";
@@ -66,7 +77,9 @@
         if (bosses.length > 0) {
           const firstBoss = bosses[0];
           const nombre = firstBoss.bossname || 'Unknown';
-          const bosstime = convertToGMTPlus7(firstBoss.bosstime);
+          const spawnDate = convertToGMTPlus7(firstBoss.bosstime);
+          const spawnTime = formatTimeOnly(spawnDate);
+          const spawnedText = spawnDate < now ? '<span class="spawned">spawn</span>' : '';
 
           const wrapper = document.createElement("div");
           wrapper.className = "container";
@@ -77,7 +90,7 @@
             </div>
             <div class="col">
               <div class="label">Next Spawn:</div>
-              <div>${bosstime}</div>
+              <div>${spawnTime} ${spawnedText}</div>
             </div>
           `;
           header.appendChild(wrapper);
@@ -85,7 +98,9 @@
 
         bosses.slice(1).forEach(boss => {
           const nombre = boss.bossname || 'Unknown';
-          const bosstime = convertToGMTPlus7(boss.bosstime);
+          const spawnDate = convertToGMTPlus7(boss.bosstime);
+          const spawnTime = formatTimeOnly(spawnDate);
+          const spawnedText = spawnDate < now ? '<span class="spawned">spawn</span>' : '';
 
           const wrapper = document.createElement("div");
           wrapper.className = "container";
@@ -95,7 +110,7 @@
               <div>${nombre}</div>
             </div>
             <div class="col">
-              <div>${bosstime}</div>
+              <div>${spawnTime} ${spawnedText}</div>
             </div>
           `;
 
