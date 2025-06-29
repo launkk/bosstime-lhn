@@ -36,6 +36,13 @@
   <div id="boss-list"></div>
 
   <script>
+    function convertToGMTPlus7(utcDateString) {
+      const utcDate = new Date(utcDateString);
+      if (isNaN(utcDate)) return 'Invalid Date';
+      const gmtPlus7Date = new Date(utcDate.getTime() + 10 * 60 * 60 * 1000); // GMT-3 to GMT+7 = +10 hours
+      return gmtPlus7Date.toLocaleString();
+    }
+
     async function fetchAndDisplayBosses() {
       try {
         const proxyUrl = "https://api.allorigins.win/raw?url=";
@@ -59,13 +66,13 @@
         if (bosses.length > 0) {
           const firstBoss = bosses[0];
           const nombre = firstBoss.bossname || 'Unknown';
-          const bosstime = firstBoss.bosstime || 'N/A';
+          const bosstime = convertToGMTPlus7(firstBoss.bosstime);
 
           const wrapper = document.createElement("div");
           wrapper.className = "container";
           wrapper.innerHTML = `
             <div class="col">
-              <div class="label">Boss:</div>
+              <div class="label">Boss Name:</div>
               <div>${nombre}</div>
             </div>
             <div class="col">
@@ -78,7 +85,7 @@
 
         bosses.slice(1).forEach(boss => {
           const nombre = boss.bossname || 'Unknown';
-          const bosstime = boss.bosstime || 'N/A';
+          const bosstime = convertToGMTPlus7(boss.bosstime);
 
           const wrapper = document.createElement("div");
           wrapper.className = "container";
