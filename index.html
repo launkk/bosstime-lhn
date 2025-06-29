@@ -52,6 +52,11 @@
           const nombre = boss.bossname || 'Unknown';
           const nextSpawn = boss.bosstime ? new Date(boss.bosstime * 1000) : null;
 
+          const isValidDate = nextSpawn instanceof Date && !isNaN(nextSpawn);
+          const nextSpawnStr = isValidDate 
+            ? nextSpawn.toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })
+            : 'N/A';
+
           const wrapper = document.createElement("div");
           wrapper.className = "container";
 
@@ -62,7 +67,7 @@
             </div>
             <div class="col">
               <div class="label">next spawn</div>
-              <div>${nextSpawn ? nextSpawn.toLocaleDateString('en-GB') + ' ' + nextSpawn.toTimeString().slice(0, 5) : 'N/A'}</div>
+              <div>${nextSpawnStr}</div>
             </div>
           `;
 
