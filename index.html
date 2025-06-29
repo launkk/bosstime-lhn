@@ -9,29 +9,38 @@
       font-family: Arial, sans-serif;
       padding: 20px;
     }
+    .header-row, .row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+    }
     .header-row {
-      display: flex;
-      justify-content: space-between;
       font-weight: bold;
       margin-bottom: 10px;
     }
     .row {
-      display: flex;
-      justify-content: space-between;
       border-bottom: 1px solid #ccc;
       padding: 6px 0;
     }
     .col-name {
-      width: 50%;
+      word-break: break-word;
     }
     .col-time {
-      width: 25%;
       text-align: right;
+      white-space: nowrap;
     }
     .col-status {
-      width: 15%;
       color: red;
-      text-align: right;
+      white-space: nowrap;
+    }
+    .col-status.spawned {
+      color: green;
+    }
+    @media (max-width: 600px) {
+      .header-row, .row {
+        grid-template-columns: 1fr auto auto;
+      }
     }
   </style>
 </head>
@@ -70,7 +79,7 @@
         const now = new Date();
         if (gmtTime <= now) {
           status.textContent = 'spawn';
-          status.style.color = 'green';
+          status.classList.add('spawned');
         } else {
           status.textContent = '';
         }
