@@ -24,7 +24,7 @@
     .label {
       color: black;
       font-size: 12px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .col {
       display: flex;
@@ -48,8 +48,14 @@
     }
     .time-spawn-row {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: flex-end;
+    }
+    .spawn-label {
+      font-size: 12px;
+      color: black;
+      margin-right: 5px;
+      text-align: right;
     }
     @media (max-width: 600px) {
       .container {
@@ -119,10 +125,8 @@
               <div>${nombre}</div>
             </div>
             <div class="time-spawn-row">
-              <div class="col">
-                <div class="label">Spawn Time:</div>
-                <div class="time-col">${spawnTime}</div>
-              </div>
+              <div class="spawn-label">Next:</div>
+              <div class="time-col">${spawnTime}</div>
               <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
           `;
@@ -140,6 +144,7 @@
           wrapper.innerHTML = `
             <div class="name-col">${nombre}</div>
             <div class="time-spawn-row">
+              <div class="spawn-label"></div>
               <div class="time-col">${spawnTime}</div>
               <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
