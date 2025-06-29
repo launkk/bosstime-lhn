@@ -34,6 +34,17 @@
       color: green;
       font-weight: bold;
     }
+    #spinner {
+      display: none;
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 20px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
     @media (max-width: 600px) {
       .header-row, .row {
         grid-template-columns: 1fr auto;
@@ -42,6 +53,8 @@
   </style>
 </head>
 <body>
+  <img id="spinner" src="/mnt/data/f8ab8292-c34d-40ab-b513-77377209d6ef.jpg" alt="Loading Spinner">
+
   <div class="header-row">
     <div class="col-name">Boss Name:</div>
     <div class="col-time">Next:</div>
@@ -50,10 +63,15 @@
 
   <script>
     async function fetchBossData() {
+      const spinner = document.getElementById('spinner');
+      spinner.style.display = 'block';
       const res = await fetch('https://api.allorigins.win/raw?url=https://laghaimnew.com/MAIN_/cache/boss_spawn.json');
       const data = await res.json();
+      spinner.style.display = 'none';
+
       const bosses = Object.values(data).sort((a, b) => new Date(a.bosstime) - new Date(b.bosstime));
       const container = document.getElementById('boss-list');
+      container.innerHTML = '';
 
       bosses.forEach(boss => {
         const row = document.createElement('div');
@@ -84,6 +102,7 @@
     }
 
     fetchBossData();
+    setInterval(fetchBossData, 10000);
   </script>
 </body>
 </html>
