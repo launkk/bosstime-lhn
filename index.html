@@ -36,8 +36,9 @@
   <script>
     async function fetchAndDisplayBosses() {
       try {
-        const url = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
-        const res = await fetch(url);
+        const proxyUrl = "https://api.allorigins.win/raw?url=";
+        const targetUrl = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
+        const res = await fetch(proxyUrl + encodeURIComponent(targetUrl));
         if (!res.ok) throw new Error("Failed to fetch data");
         const data = await res.json();
 
@@ -47,9 +48,9 @@
         const now = Date.now();
 
         data.forEach(boss => {
-          const nombre = boss?.nombre ?? 'Unknown';
-          const bornAgo = Math.abs(Number(boss?.segundos) || 0) * 1000;
-          const respawn = Number(boss?.respawn) || 3600;
+          const nombre = boss.nombre || 'Unknown';
+          const bornAgo = Math.abs(parseInt(boss.segundos) || 0) * 1000;
+          const respawn = parseInt(boss.respawn) || 3600;
           const nextSpawn = new Date(now + (respawn * 1000 - bornAgo));
 
           const wrapper = document.createElement("div");
