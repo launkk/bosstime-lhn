@@ -24,7 +24,7 @@
     .label {
       color: black;
       font-size: 12px;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
     .col {
       display: flex;
@@ -44,20 +44,17 @@
       font-weight: bold;
       font-size: 12px;
       min-width: 50px;
-      margin-left: 10px;
+      padding-left: 10px;
     }
     .time-spawn-row {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: flex-end;
+      justify-content: flex-end;
     }
     @media (max-width: 600px) {
       .container {
         flex-direction: row;
         flex-wrap: nowrap;
-      }
-      .label {
-        flex: 1 0 50%;
       }
       .name-col {
         flex: 1 0 50%;
