@@ -22,7 +22,7 @@
       font-size: 13px;
     }
     .label {
-      color: red;
+      color: black;
       font-size: 12px;
       margin-bottom: 2px;
     }
@@ -46,10 +46,19 @@
       min-width: 50px;
       margin-left: 10px;
     }
+    .time-spawn-row {
+      display: flex;
+      justify-content: flex-end;
+      min-width: 140px;
+      gap: 10px;
+    }
     @media (max-width: 600px) {
       .container {
         flex-direction: row;
         flex-wrap: nowrap;
+      }
+      .label {
+        flex: 1 0 50%;
       }
       .name-col {
         flex: 1 0 50%;
@@ -114,11 +123,13 @@
               <div class="label">Boss Name:</div>
               <div>${nombre}</div>
             </div>
-            <div class="time-col">
-              <div class="label">Next Spawn:</div>
-              <div>${spawnTime}</div>
+            <div class="time-spawn-row">
+              <div class="col">
+                <div class="label">Next Spawn:</div>
+                <div>${spawnTime}</div>
+              </div>
+              <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
-            <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
           `;
           header.appendChild(wrapper);
         }
@@ -133,8 +144,10 @@
           wrapper.className = "container";
           wrapper.innerHTML = `
             <div class="name-col">${nombre}</div>
-            <div class="time-col">${spawnTime}</div>
-            <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
+            <div class="time-spawn-row">
+              <div class="time-col">${spawnTime}</div>
+              <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
+            </div>
           `;
           container.appendChild(wrapper);
         });
