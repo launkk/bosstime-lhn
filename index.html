@@ -55,7 +55,8 @@
       const now = new Date();
 
       bossData.forEach(boss => {
-        const spawnTime = new Date(boss.bosstime);
+        // Convert boss time assuming it's in GMT-3
+        const spawnTime = new Date(new Date(boss.bosstime).getTime() + 3 * 60 * 60 * 1000);
         const diffMs = spawnTime - now;
 
         let countdown = "<span style='color: red;'>Spawned</span>";
@@ -75,19 +76,22 @@
     }
 
     async function fetchBossData() {
-      try {
-        const response = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent("https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now()));
-        const data = await response.json();
-        bossData = data;
+  try {
+    const proxyUrl = "https://thingproxy.freeboard.io/fetch/";
+    const targetUrl = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
+    const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
+    const data = await response.json(); // ✅ this was missing
+    bossData = data;
 
-        const updatedAt = document.querySelector("#last-updated");
-        updatedAt.textContent = "Last updated: " + new Date().toLocaleTimeString();
+    const updatedAt = document.querySelector("#last-updated");
+    updatedAt.textContent = "Last updated: " + new Date().toLocaleTimeString();
 
-        updateCountdowns();
-      } catch (err) {
-        console.error("Failed to fetch boss data:", err);
-      }
-    }
+    updateCountdowns();
+  } catch (err) {
+    console.error("Failed to fetch boss data:", err);
+  }
+}
+
 
     fetchBossData();
     setInterval(fetchBossData, 30000); // refresh every 30s
