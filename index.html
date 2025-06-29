@@ -45,7 +45,11 @@
         const data = await res.json();
 
         const bosses = Array.isArray(data) ? data : Object.values(data);
-        bosses.sort((a, b) => (a.bossname || '').localeCompare(b.bossname || ''));
+        bosses.sort((a, b) => {
+          const aTime = new Date(a.bosstime).getTime();
+          const bTime = new Date(b.bosstime).getTime();
+          return aTime - bTime;
+        });
 
         const header = document.getElementById("boss-header");
         const container = document.getElementById("boss-list");
@@ -61,19 +65,18 @@
           wrapper.className = "container";
           wrapper.innerHTML = `
             <div class="col">
-              <div class="label">boss name</div>
+              <div class="label">Boss:</div>
               <div>${nombre}</div>
             </div>
             <div class="col">
-              <div class="label">next spawn</div>
+              <div class="label">Next Spawn:</div>
               <div>${bosstime}</div>
             </div>
           `;
           header.appendChild(wrapper);
         }
 
-        bosses.forEach((boss, index) => {
-          if (index === 0) return; // Skip the first one
+        bosses.slice(1).forEach(boss => {
           const nombre = boss.bossname || 'Unknown';
           const bosstime = boss.bosstime || 'N/A';
 
