@@ -11,7 +11,7 @@
     }
     .header-row, .row {
       display: grid;
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 1fr auto;
       align-items: center;
       gap: 10px;
     }
@@ -30,16 +30,13 @@
       text-align: right;
       white-space: nowrap;
     }
-    .col-status {
-      color: red;
-      white-space: nowrap;
-    }
-    .col-status.spawned {
+    .spawned {
       color: green;
+      font-weight: bold;
     }
     @media (max-width: 600px) {
       .header-row, .row {
-        grid-template-columns: 1fr auto auto;
+        grid-template-columns: 1fr auto;
       }
     }
   </style>
@@ -48,7 +45,6 @@
   <div class="header-row">
     <div class="col-name">Boss Name:</div>
     <div class="col-time">Next:</div>
-    <div class="col-status"></div>
   </div>
   <div id="boss-list"></div>
 
@@ -71,22 +67,18 @@
         time.className = 'col-time';
         const gmtTime = new Date(boss.bosstime);
         gmtTime.setHours(gmtTime.getHours() + 10); // Convert GMT-3 to GMT+7
-        const timeStr = gmtTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        time.textContent = timeStr;
-
-        const status = document.createElement('div');
-        status.className = 'col-status';
         const now = new Date();
+
         if (gmtTime <= now) {
-          status.textContent = 'spawn';
-          status.classList.add('spawned');
+          time.textContent = 'spawn';
+          time.classList.add('spawned');
         } else {
-          status.textContent = '';
+          const timeStr = gmtTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          time.textContent = timeStr;
         }
 
         row.appendChild(name);
         row.appendChild(time);
-        row.appendChild(status);
         container.appendChild(row);
       });
     }
