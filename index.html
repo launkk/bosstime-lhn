@@ -3,111 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Laghaim Boss Spawn Viewer</title>
+  <title>Laghaim Boss Countdown</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #1e1e1e;
-      color: #f0f0f0;
+      background-color: #121212;
+      color: #ffffff;
       padding: 20px;
     }
     h1 {
       color: #00ffcc;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
+    ul {
+      list-style-type: none;
+      padding: 0;
     }
-    th, td {
-      border: 1px solid #444;
+    li {
+      margin: 10px 0;
       padding: 10px;
-      text-align: left;
+      background-color: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 5px;
     }
-    th {
-      background-color: #333;
+    .name {
+      font-weight: bold;
     }
-    tr:nth-child(even) {
-      background-color: #2a2a2a;
+    .countdown {
+      color: #00ffcc;
     }
   </style>
 </head>
 <body>
-  <h1>Laghaim Boss Spawn Viewer</h1>
+  <h1>Laghaim Boss Countdown</h1>
   <div id="last-updated"></div>
-  <table id="boss-table">
-    <thead>
-      <tr>
-        <th>Boss Name</th>
-        <th>Time Since Spawn</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <ul id="boss-list"></ul>
 
- <script>
-  let bossData = [];
+  <script>
+    let bossData = [];
 
-  function updateCountdowns() {
-    const tableBody = document.querySelector("#boss-table tbody");
-    tableBody.innerHTML = "";
+    function updateCountdowns() {
+      const list = document.querySelector("#boss-list");
+      list.innerHTML = "";
+      const now = Date.now();
 
-    const now = Date.now();
+      bossData.forEach(boss => {
+        const bornAgoMs = boss.bornAgoSeconds * 1000;
+        const nextSpawnMs = boss.respawnSeconds * 1000 - bornAgoMs;
+        const countdown = nextSpawnMs > 0 ? formatCountdown(nextSpawnMs) : "Spawned";
 
-    bossData.forEach(boss => {
-      const bornAgoMs = parseInt(boss.bornAgoSeconds) * 1000;
-      const spawnTime = new Date(now - bornAgoMs);
-      const diffMs = now - spawnTime;
-
-      const mins = Math.floor(diffMs / 60000);
-      const secs = Math.floor((diffMs % 60000) / 1000);
-      const countdown = `Born ${mins}m ${secs}s ago`;
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${boss.name}</td>
-        <td>${countdown}</td>
-      `;
-      tableBody.appendChild(row);
-    });
-  }
-
-  async function fetchBossData() {
-    try {
-      const proxyUrl = "https://api.allorigins.win/raw?url=" +
-        encodeURIComponent("https://laghaimnew.com/MAIN_/events.php");
-
-      const response = await fetch(proxyUrl);
-      if (!response.ok) throw new Error("Failed to fetch HTML");
-
-      const htmlText = await response.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlText, "text/html");
-
-      const bossEls = doc.querySelectorAll(".boss-item.vivo");
-
-      bossData = Array.from(bossEls).map(el => {
-        const name = el.querySelector(".nombre")?.textContent.trim();
-        const timeAttr = el.querySelector(".tiempo")?.getAttribute("data-time");
-        return {
-          name,
-          bornAgoSeconds: Math.abs(parseInt(timeAttr || "0"))
-        };
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="name">${boss.name}</div><div class="countdown">${countdown}</div>`;
+        list.appendChild(li);
       });
-
-      const updatedAt = document.querySelector("#last-updated");
-      updatedAt.textContent = "Last updated: " + new Date().toLocaleTimeString();
-
-      updateCountdowns();
-    } catch (err) {
-      console.error("Failed to fetch boss data:", err);
     }
-  }
 
-  fetchBossData();
-  setInterval(fetchBossData, 30000); // refresh every 30s
-  setInterval(updateCountdowns, 1000); // update countdown every 1s
-</script>
+    function formatCountdown(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+      return `${h}h ${m}m ${s}s`;
+    }
 
+    async function fetchBossData() {
+      try {
+        const jsonUrl = "https://api.allorigins.win/raw?url=" +
+          encodeURIComponent("https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now());
+
+        const response = await fetch(jsonUrl);
+        if (!response.ok) throw new Error("Failed to fetch JSON");
+
+        const data = await response.json();
+
+        bossData = data.map(el => {
+          return {
+            name: el.nombre,
+            bornAgoSeconds: Math.abs(parseInt(el.segundos) || 0),
+            respawnSeconds: parseInt(el.respawn) || 3600 // use actual server respawn
+          };
+        });
+
+        document.querySelector("#last-updated").textContent =
+          "Last updated: " + new Date().toLocaleTimeString();
+
+        updateCountdowns();
+      } catch (err) {
+        console.error("Failed to fetch boss data:", err);
+      }
+    }
+
+    fetchBossData();
+    setInterval(fetchBossData, 30000);
+    setInterval(updateCountdowns, 1000);
+  </script>
 </body>
 </html>
