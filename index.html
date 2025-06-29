@@ -46,11 +46,13 @@
         const container = document.getElementById("boss-list");
         container.innerHTML = "";
 
-        data.sort((a, b) => (a.bossname || '').localeCompare(b.bossname || ''));
+        const bosses = Array.isArray(data) ? data : Object.values(data);
+        bosses.sort((a, b) => (a.bossname || '').localeCompare(b.bossname || ''));
 
-        data.forEach(boss => {
+        bosses.forEach(boss => {
           const nombre = boss.bossname || 'Unknown';
-          const nextSpawn = boss.bosstime ? new Date(boss.bosstime * 1000) : null;
+          const bosstime = Number(boss.bosstime);
+          const nextSpawn = bosstime > 0 ? new Date(bosstime * 1000) : null;
 
           const isValidDate = nextSpawn instanceof Date && !isNaN(nextSpawn);
           const nextSpawnStr = isValidDate 
