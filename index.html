@@ -39,39 +39,59 @@
     <thead>
       <tr>
         <th>Boss Name</th>
-        <th>Spawn Time</th>
+        <th>Time Until Spawn</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
   <script>
+    let bossData = [];
+
+    function updateCountdowns() {
+      const tableBody = document.querySelector("#boss-table tbody");
+      tableBody.innerHTML = "";
+
+      const now = new Date();
+
+      bossData.forEach(boss => {
+        const spawnTime = new Date(boss.bosstime);
+        const diffMs = spawnTime - now;
+
+        let countdown = "<span style='color: red;'>Spawned</span>";
+        if (diffMs > 0) {
+          const mins = Math.floor(diffMs / 60000);
+          const secs = Math.floor((diffMs % 60000) / 1000);
+          countdown = `${mins}m ${secs}s`;
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${boss.bossname}</td>
+          <td>${countdown}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
     async function fetchBossData() {
       try {
         const response = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent("https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now()));
         const data = await response.json();
+        bossData = data;
 
-        const tableBody = document.querySelector("#boss-table tbody");
         const updatedAt = document.querySelector("#last-updated");
-        tableBody.innerHTML = "";
-
         updatedAt.textContent = "Last updated: " + new Date().toLocaleTimeString();
 
-        data.forEach(boss => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${boss.bossname}</td>
-            <td>${boss.bosstime}</td>
-          `;
-          tableBody.appendChild(row);
-        });
+        updateCountdowns();
       } catch (err) {
         console.error("Failed to fetch boss data:", err);
       }
     }
 
     fetchBossData();
-    setInterval(fetchBossData, 30000); // refresh every 30 seconds
+    setInterval(fetchBossData, 30000); // refresh every 30s
+    setInterval(updateCountdowns, 1000); // update countdown every 1s
   </script>
 </body>
 </html>
