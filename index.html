@@ -10,18 +10,14 @@
       background-color: #fff;
       color: #000;
       padding: 20px;
-    }
-    .main-wrapper {
-      max-width: 480px;
-      width: 100%;
-      margin: auto;
+      margin: 0;
     }
     .container {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px solid #ccc;
-      padding: 4px 0;
-      margin-bottom: 4px;
+      padding: 6px 0;
+      margin-bottom: 6px;
       font-size: 13px;
     }
     .label {
@@ -32,20 +28,36 @@
     .col {
       display: flex;
       flex-direction: column;
-      width: 48%;
+    }
+    .name-col {
+      flex: 1;
+      word-break: break-word;
+    }
+    .time-col {
+      text-align: right;
+      flex-shrink: 0;
+      min-width: 90px;
     }
     .spawned {
       color: green;
       font-weight: bold;
       margin-left: 6px;
     }
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .time-col {
+        text-align: left;
+        margin-top: 4px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="main-wrapper">
-    <div id="boss-header"></div>
-    <div id="boss-list"></div>
-  </div>
+  <div id="boss-header"></div>
+  <div id="boss-list"></div>
 
   <script>
     function convertToGMTPlus7(utcDateString) {
@@ -87,11 +99,11 @@
           const wrapper = document.createElement("div");
           wrapper.className = "container";
           wrapper.innerHTML = `
-            <div class="col">
+            <div class="name-col">
               <div class="label">Boss Name:</div>
               <div>${nombre}</div>
             </div>
-            <div class="col">
+            <div class="time-col">
               <div class="label">Next Spawn:</div>
               <div>${spawnTime} ${spawnedText}</div>
             </div>
@@ -107,13 +119,12 @@
 
           const wrapper = document.createElement("div");
           wrapper.className = "container";
-
           wrapper.innerHTML = `
-            <div class="col">
-              <div>${nombre}</div>
+            <div class="name-col">
+              ${nombre}
             </div>
-            <div class="col">
-              <div>${spawnTime} ${spawnedText}</div>
+            <div class="time-col">
+              ${spawnTime} ${spawnedText}
             </div>
           `;
 
