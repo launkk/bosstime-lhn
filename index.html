@@ -48,7 +48,7 @@
   <script>
     async function fetchBossData() {
       try {
-        const response = await fetch("https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now());
+        const response = await fetch("https://corsproxy.io/?https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now());
         const data = await response.json();
 
         const tableBody = document.querySelector("#boss-table tbody");
