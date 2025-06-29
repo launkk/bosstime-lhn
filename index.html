@@ -1,153 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laghaim Boss Spawn</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #fff;
-      color: #000;
       padding: 20px;
-      margin: 0;
     }
-    .container {
+    .header-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
       border-bottom: 1px solid #ccc;
       padding: 6px 0;
-      margin-bottom: 6px;
-      font-size: 13px;
     }
-    .label {
-      color: red;
-      font-size: 12px;
-      margin-bottom: 2px;
+    .col-name {
+      width: 50%;
     }
-    .col {
-      display: flex;
-      flex-direction: column;
-    }
-    .name-col {
-      flex: 1;
-      word-break: break-word;
-    }
-    .time-wrap {
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-end;
-      gap: 8px;
-      min-width: 100px;
-    }
-    .time-col {
-      min-width: 60px;
+    .col-time {
+      width: 25%;
       text-align: right;
     }
-    .spawn-col {
+    .col-status {
+      width: 15%;
       color: red;
-      font-weight: bold;
-      font-size: 12px;
-      text-align: left;
-    }
-    @media (max-width: 600px) {
-      .container {
-        flex-direction: row;
-        flex-wrap: nowrap;
-      }
-      .name-col {
-        flex: 1 0 50%;
-      }
+      text-align: right;
     }
   </style>
 </head>
 <body>
-  <div id="boss-header"></div>
+  <div class="header-row">
+    <div class="col-name">Boss Name:</div>
+    <div class="col-time">Next:</div>
+    <div class="col-status"></div>
+  </div>
   <div id="boss-list"></div>
 
   <script>
-    function convertToGMTPlus7(utcDateString) {
-      const utcDate = new Date(utcDateString);
-      if (isNaN(utcDate)) return null;
-      const gmtPlus7Date = new Date(utcDate.getTime() + 10 * 60 * 60 * 1000);
-      return gmtPlus7Date;
-    }
+    async function fetchBossData() {
+      const res = await fetch('https://api.allorigins.win/raw?url=https://laghaimnew.com/MAIN_/cache/boss_spawn.json');
+      const data = await res.json();
+      const bosses = Object.values(data).sort((a, b) => new Date(a.bosstime) - new Date(b.bosstime));
+      const container = document.getElementById('boss-list');
 
-    function formatTimeOnly(date) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
+      bosses.forEach(boss => {
+        const row = document.createElement('div');
+        row.className = 'row';
 
-    async function fetchAndDisplayBosses() {
-      try {
-        const proxyUrl = "https://api.allorigins.win/raw?url=";
-        const targetUrl = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
-        const res = await fetch(proxyUrl + encodeURIComponent(targetUrl));
-        if (!res.ok) throw new Error("Failed to fetch data");
-        const data = await res.json();
+        const name = document.createElement('div');
+        name.className = 'col-name';
+        name.textContent = boss.bossname || 'Unknown';
 
-        const bosses = Array.isArray(data) ? data : Object.values(data);
-        const validBosses = bosses.filter(b => b.bosstime);
+        const time = document.createElement('div');
+        time.className = 'col-time';
+        const gmtTime = new Date(boss.bosstime);
+        gmtTime.setHours(gmtTime.getHours() + 10); // Convert GMT-3 to GMT+7
+        const timeStr = gmtTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        time.textContent = timeStr;
 
-        validBosses.sort((a, b) => new Date(a.bosstime) - new Date(b.bosstime));
-
+        const status = document.createElement('div');
+        status.className = 'col-status';
         const now = new Date();
-
-        const header = document.getElementById("boss-header");
-        const container = document.getElementById("boss-list");
-        header.innerHTML = "";
-        container.innerHTML = "";
-
-        if (validBosses.length > 0) {
-          const firstBoss = validBosses[0];
-          const nombre = firstBoss.bossname || 'Unknown';
-          const spawnDate = convertToGMTPlus7(firstBoss.bosstime);
-          const spawnTime = spawnDate ? formatTimeOnly(spawnDate) : 'N/A';
-          const spawned = spawnDate && spawnDate < now;
-
-          const wrapper = document.createElement("div");
-          wrapper.className = "container";
-          wrapper.innerHTML = `
-            <div class="name-col">
-              <div class="label">Boss Name:</div>
-              <div>${nombre}</div>
-            </div>
-            <div class="time-wrap">
-              <div class="col" style="align-items: flex-end;">
-                <div class="label" style="text-align: right;">Next:</div>
-                <div class="time-col">${spawnTime}</div>
-              </div>
-              <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
-            </div>
-          `;
-          header.appendChild(wrapper);
+        if (gmtTime <= now) {
+          status.textContent = 'spawn';
+          status.style.color = 'green';
+        } else {
+          status.textContent = '';
         }
 
-        validBosses.slice(1).forEach(boss => {
-          const nombre = boss.bossname || 'Unknown';
-          const spawnDate = convertToGMTPlus7(boss.bosstime);
-          const spawnTime = spawnDate ? formatTimeOnly(spawnDate) : 'N/A';
-          const spawned = spawnDate && spawnDate < now;
-
-          const wrapper = document.createElement("div");
-          wrapper.className = "container";
-          wrapper.innerHTML = `
-            <div class="name-col">${nombre}</div>
-            <div class="time-wrap">
-              <div class="time-col">${spawnTime}</div>
-              <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
-            </div>
-          `;
-          container.appendChild(wrapper);
-        });
-
-      } catch (err) {
-        console.error("Error fetching boss data:", err);
-      }
+        row.appendChild(name);
+        row.appendChild(time);
+        row.appendChild(status);
+        container.appendChild(row);
+      });
     }
 
-    fetchAndDisplayBosses();
-    setInterval(fetchAndDisplayBosses, 30000);
+    fetchBossData();
   </script>
 </body>
 </html>
