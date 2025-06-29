@@ -10,18 +10,25 @@
       background-color: #fff;
       color: #000;
       padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .main-wrapper {
+      max-width: 480px;
+      width: 100%;
     }
     .container {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px solid #ccc;
-      padding: 10px 0;
-      margin-bottom: 10px;
+      padding: 4px 0;
+      margin-bottom: 4px;
+      font-size: 13px;
     }
     .label {
       color: red;
-      font-size: 14px;
-      margin-bottom: 5px;
+      font-size: 12px;
+      margin-bottom: 2px;
     }
     .col {
       display: flex;
@@ -31,14 +38,16 @@
     .spawned {
       color: green;
       font-weight: bold;
-      margin-left: 10px;
+      margin-left: 6px;
     }
   </style>
 </head>
 <body>
-  <h2>Boss Spawn Viewer</h2>
-  <div id="boss-header"></div>
-  <div id="boss-list"></div>
+  <div class="main-wrapper">
+    <h2>Boss Spawn Viewer</h2>
+    <div id="boss-header"></div>
+    <div id="boss-list"></div>
+  </div>
 
   <script>
     function convertToGMTPlus7(utcDateString) {
@@ -61,11 +70,7 @@
         const data = await res.json();
 
         const bosses = Array.isArray(data) ? data : Object.values(data);
-        bosses.sort((a, b) => {
-          const aTime = new Date(a.bosstime).getTime();
-          const bTime = new Date(b.bosstime).getTime();
-          return aTime - bTime;
-        });
+        bosses.sort((a, b) => new Date(a.bosstime) - new Date(b.bosstime));
 
         const now = new Date();
 
