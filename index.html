@@ -38,19 +38,23 @@
       flex-shrink: 0;
       min-width: 90px;
     }
-    .spawned {
+    .spawned-row {
+      text-align: right;
       color: green;
       font-weight: bold;
-      margin-left: 6px;
+      font-size: 12px;
     }
     @media (max-width: 600px) {
       .container {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .name-col {
+        flex: 1 0 60%;
       }
       .time-col {
-        text-align: left;
-        margin-top: 4px;
+        flex: 1 0 40%;
+        text-align: right;
       }
     }
   </style>
@@ -62,7 +66,7 @@
   <script>
     function convertToGMTPlus7(utcDateString) {
       const utcDate = new Date(utcDateString);
-      if (isNaN(utcDate)) return 'Invalid Date';
+      if (isNaN(utcDate)) return null;
       const gmtPlus7Date = new Date(utcDate.getTime() + 10 * 60 * 60 * 1000); // GMT-3 to GMT+7 = +10 hours
       return gmtPlus7Date;
     }
@@ -80,7 +84,10 @@
         const data = await res.json();
 
         const bosses = Array.isArray(data) ? data : Object.values(data);
-        bosses.sort((a, b) => new Date(a.bosstime) - new Date(b.bosstime));
+
+        const validBosses = bosses.filter(b => b.bosstime);
+
+        validBosses.sort((a, b) => new Date(a.bosstime) - new Date(b.bosstime));
 
         const now = new Date();
 
@@ -89,12 +96,12 @@
         header.innerHTML = "";
         container.innerHTML = "";
 
-        if (bosses.length > 0) {
-          const firstBoss = bosses[0];
+        if (validBosses.length > 0) {
+          const firstBoss = validBosses[0];
           const nombre = firstBoss.bossname || 'Unknown';
           const spawnDate = convertToGMTPlus7(firstBoss.bosstime);
-          const spawnTime = formatTimeOnly(spawnDate);
-          const spawnedText = spawnDate < now ? '<span class="spawned">spawn</span>' : '';
+          const spawnTime = spawnDate ? formatTimeOnly(spawnDate) : 'N/A';
+          const spawned = spawnDate && spawnDate < now;
 
           const wrapper = document.createElement("div");
           wrapper.className = "container";
@@ -105,17 +112,18 @@
             </div>
             <div class="time-col">
               <div class="label">Next Spawn:</div>
-              <div>${spawnTime} ${spawnedText}</div>
+              <div>${spawnTime}</div>
+              ${spawned ? '<div class="spawned-row">spawn</div>' : ''}
             </div>
           `;
           header.appendChild(wrapper);
         }
 
-        bosses.slice(1).forEach(boss => {
+        validBosses.slice(1).forEach(boss => {
           const nombre = boss.bossname || 'Unknown';
           const spawnDate = convertToGMTPlus7(boss.bosstime);
-          const spawnTime = formatTimeOnly(spawnDate);
-          const spawnedText = spawnDate < now ? '<span class="spawned">spawn</span>' : '';
+          const spawnTime = spawnDate ? formatTimeOnly(spawnDate) : 'N/A';
+          const spawned = spawnDate && spawnDate < now;
 
           const wrapper = document.createElement("div");
           wrapper.className = "container";
@@ -124,10 +132,10 @@
               ${nombre}
             </div>
             <div class="time-col">
-              ${spawnTime} ${spawnedText}
+              <div>${spawnTime}</div>
+              ${spawned ? '<div class="spawned-row">spawn</div>' : ''}
             </div>
           `;
-
           container.appendChild(wrapper);
         });
 
