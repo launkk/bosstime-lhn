@@ -15,29 +15,33 @@
     .container {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       border-bottom: 1px solid #ccc;
-      padding: 6px 0;
+      padding: 6px 0 14px;
       margin-bottom: 6px;
       font-size: 13px;
     }
     .label {
       color: red;
       font-size: 12px;
-      margin-bottom: 2px;
-      text-align: left;
+      margin-bottom: 4px;
+      text-align: right;
     }
     .col {
       display: flex;
       flex-direction: column;
+      align-items: flex-end;
     }
     .name-col {
       flex: 1;
       word-break: break-word;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
     .time-wrap {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: flex-end;
       gap: 8px;
       min-width: 100px;
@@ -51,7 +55,7 @@
       font-weight: bold;
       font-size: 12px;
       min-width: 50px;
-      text-align: left;
+      text-align: right;
     }
     @media (max-width: 600px) {
       .container {
@@ -136,7 +140,10 @@
           wrapper.innerHTML = `
             <div class="name-col">${nombre}</div>
             <div class="time-wrap">
-              <div class="time-col">${spawnTime}</div>
+              <div class="col">
+                <div class="label">Next:</div>
+                <div class="time-col">${spawnTime}</div>
+              </div>
               <div class="spawn-col">${spawned ? 'spawn' : ''}</div>
             </div>
           `;
