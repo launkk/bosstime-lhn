@@ -47,8 +47,9 @@
         const now = Date.now();
 
         data.forEach(boss => {
-          const bornAgo = Math.abs(parseInt(boss.segundos) || 0) * 1000;
-          const respawn = parseInt(boss.respawn) || 3600;
+          const nombre = boss?.nombre ?? 'Unknown';
+          const bornAgo = Math.abs(Number(boss?.segundos) || 0) * 1000;
+          const respawn = Number(boss?.respawn) || 3600;
           const nextSpawn = new Date(now + (respawn * 1000 - bornAgo));
 
           const wrapper = document.createElement("div");
@@ -57,7 +58,7 @@
           wrapper.innerHTML = `
             <div class="col">
               <div class="label">boss name</div>
-              <div>${boss.nombre}</div>
+              <div>${nombre}</div>
             </div>
             <div class="col">
               <div class="label">next spawn</div>
