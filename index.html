@@ -51,13 +51,7 @@
 
         bosses.forEach(boss => {
           const nombre = boss.bossname || 'Unknown';
-          const bosstime = Number(boss.bosstime);
-          const nextSpawn = bosstime > 0 ? new Date(bosstime * 1000) : null;
-
-          const isValidDate = nextSpawn instanceof Date && !isNaN(nextSpawn);
-          const nextSpawnStr = isValidDate 
-            ? nextSpawn.toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })
-            : 'N/A';
+          const bosstime = boss.bosstime || 'N/A';
 
           const wrapper = document.createElement("div");
           wrapper.className = "container";
@@ -69,7 +63,7 @@
             </div>
             <div class="col">
               <div class="label">next spawn</div>
-              <div>${nextSpawnStr}</div>
+              <div>${bosstime}</div>
             </div>
           `;
 
