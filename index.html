@@ -1,19 +1,103 @@
-async function fetchBossData() {
-  try {
-    const target = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
-    const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(target);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laghaim Boss Spawn Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      color: #00ffcc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #333;
+    }
+    tr:nth-child(even) {
+      background-color: #2a2a2a;
+    }
+  </style>
+</head>
+<body>
+  <h1>Laghaim Boss Spawn Viewer</h1>
+  <div id="last-updated"></div>
+  <table id="boss-table">
+    <thead>
+      <tr>
+        <th>Boss Name</th>
+        <th>Time Until Spawn</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    const response = await fetch(proxy);
-    if (!response.ok) throw new Error("Proxy fetch failed");
+  <script>
+    let bossData = [];
 
-    const data = await response.json();
-    bossData = data;
+    function updateCountdowns() {
+      const tableBody = document.querySelector("#boss-table tbody");
+      tableBody.innerHTML = "";
 
-    const updatedAt = document.querySelector("#last-updated");
-    updatedAt.textContent = "Last updated: " + new Date().toLocaleTimeString();
+      const now = new Date();
 
-    updateCountdowns();
-  } catch (err) {
-    console.error("Failed to fetch boss data:", err);
-  }
-}
+      bossData.forEach(boss => {
+        // Convert boss time assuming it's in GMT-3
+        const spawnTime = new Date(new Date(boss.bosstime).getTime() + 3 * 60 * 60 * 1000);
+        const diffMs = spawnTime - now;
+
+        let countdown = "<span style='color: red;'>Spawned</span>";
+        if (diffMs > 0) {
+          const mins = Math.floor(diffMs / 60000);
+          const secs = Math.floor((diffMs % 60000) / 1000);
+          countdown = `${mins}m ${secs}s`;
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${boss.bossname}</td>
+          <td>${countdown}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    async function fetchBossData() {
+      try {
+        const target = "https://laghaimnew.com/MAIN_/cache/boss_spawn.json?_=" + Date.now();
+        const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(target);
+
+        const response = await fetch(proxy);
+        if (!response.ok) throw new Error("Proxy fetch failed");
+
+        const data = await response.json();
+        bossData = data;
+
+        const updatedAt = document.querySelector("#last-updated");
+        updatedAt.textContent = "Last updated: " + new Date().toLocaleTimeString();
+
+        updateCountdowns();
+      } catch (err) {
+        console.error("Failed to fetch boss data:", err);
+      }
+    }
+
+    fetchBossData();
+    setInterval(fetchBossData, 30000); // refresh every 30s
+    setInterval(updateCountdowns, 1000); // update countdown every 1s
+  </script>
+</body>
+</html>
