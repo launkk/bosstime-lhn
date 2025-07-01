@@ -3,126 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Today's Events</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <title>Laghaim Boss Spawn</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0f0f0f;
-      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
     }
-    header {
-      text-align: center;
-      padding: 1rem 0;
-      background: #1a1a1a;
-      font-size: 1.5rem;
-      font-weight: bold;
-      letter-spacing: 0.05em;
-    }
-    .event-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 1rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .event-box {
-      display: flex;
-      justify-content: space-between;
+    .header-row, .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
       align-items: center;
-      background: #191919;
-      border-left: 6px solid #333;
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
+      gap: 10px;
     }
-    .event-name {
-      font-weight: 600;
-      font-size: 1rem;
-      color: #ddd;
-    }
-    .event-time {
-      font-size: 0.95rem;
-      color: #aaa;
-      font-family: monospace;
-    }
-    .status {
-      padding: 3px 10px;
-      border-radius: 12px;
+    .header-row {
       font-weight: bold;
-      font-size: 0.85rem;
+      margin-bottom: 10px;
     }
-    .status-on {
-      background: #00ff99;
-      color: #000;
+    .row {
+      border-bottom: 1px solid #ccc;
+      padding: 6px 0;
     }
-    .status-ended {
-      background: #444;
-      color: #999;
+    .col-name {
+      word-break: break-word;
+    }
+    .col-time {
+      text-align: right;
+      white-space: nowrap;
+    }
+    .spawned {
+      color: green;
+      font-weight: bold;
+    }
+    @media (max-width: 600px) {
+      .header-row, .row {
+        grid-template-columns: 1fr auto;
+      }
     }
   </style>
 </head>
 <body>
-  <header>Today's Events</header>
-  <div id="eventList" class="event-container"></div>
+  <div class="header-row">
+    <div class="col-name">Boss Name:</div>
+    <div class="col-time">Next:</div>
+  </div>
+  <div id="boss-list"></div>
 
   <script>
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTDa9wCM0huRxhBO9KXMv0bbLRXX0MdAeK_EC3mc5sM8FZyrbgRRkN-PVwFO_uYh4RHEu5E-TyRSEUZ/pub?output=csv';
+    async function fetchBossData() {
+      const res = await fetch('https://api.allorigins.win/raw?url=https://laghaimnew.com/MAIN_/cache/boss_spawn.json');
+      const data = await res.json();
 
-    function parseCSV(url) {
-      Papa.parse(url, {
-        download: true,
-        header: true,
-        complete: function(results) {
-          renderEvents(results.data);
+      const bosses = Object.values(data).sort((a, b) => new Date(a.bosstime) - new Date(b.bosstime));
+      const container = document.getElementById('boss-list');
+      container.innerHTML = '';
+
+      bosses.forEach(boss => {
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const name = document.createElement('div');
+        name.className = 'col-name';
+        name.textContent = boss.bossname || 'Unknown';
+
+        const time = document.createElement('div');
+        time.className = 'col-time';
+        const gmtTime = new Date(boss.bosstime);
+        gmtTime.setHours(gmtTime.getHours() + 10); // Convert GMT-3 to GMT+7
+        const now = new Date();
+
+        if (gmtTime <= now) {
+          time.textContent = 'spawn';
+          time.classList.add('spawned');
+        } else {
+          const timeStr = gmtTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          time.textContent = timeStr;
         }
+
+        row.appendChild(name);
+        row.appendChild(time);
+        container.appendChild(row);
       });
     }
 
-    function formatTime(dateStr) {
-      const date = new Date(dateStr);
-      if (isNaN(date)) return '-';
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function isSameDay(date1, date2) {
-      return date1.getFullYear() === date2.getFullYear() &&
-             date1.getMonth() === date2.getMonth() &&
-             date1.getDate() === date2.getDate();
-    }
-
-    function renderEvents(events) {
-      const now = new Date();
-      const list = document.getElementById("eventList");
-      list.innerHTML = "";
-
-      const todayEvents = events.filter(event => {
-        const start = new Date(event.start);
-        const end = new Date(event.end);
-        if (isNaN(start) || isNaN(end)) return false;
-        return isSameDay(start, now) || isSameDay(end, now) || (now >= start && now <= end);
-      });
-
-      todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
-
-      todayEvents.forEach(event => {
-        const start = new Date(event.start);
-        const end = new Date(event.end);
-        const status = now >= start && now <= end ? 'ON' : 'ENDED';
-
-        const box = document.createElement('div');
-        box.className = 'event-box';
-        box.innerHTML = `
-          <div class="event-name">${event.name}</div>
-          <div class="event-time">${formatTime(event.start)}</div>
-          <div class="status status-${status.toLowerCase()}">${status}</div>
-        `;
-        list.appendChild(box);
-      });
-    }
-
-    parseCSV(sheetUrl);
+    fetchBossData();
+    setInterval(fetchBossData, 10000);
   </script>
 </body>
 </html>
