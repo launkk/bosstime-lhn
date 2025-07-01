@@ -3,90 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laghaim Boss Spawn</title>
+  <title>Today's Events</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
+      background-color: #111;
+      color: #fff;
+      padding: 1rem;
     }
-    .header-row, .row {
-      display: grid;
-      grid-template-columns: 1fr auto;
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .event-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .event-box {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 10px;
+      background: #1a1a1a;
+      border-left: 5px solid #555;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
-    .header-row {
+    .event-name {
       font-weight: bold;
-      margin-bottom: 10px;
+      font-size: 1.1rem;
     }
-    .row {
-      border-bottom: 1px solid #ccc;
-      padding: 6px 0;
+    .event-time {
+      font-family: monospace;
+      font-size: 1rem;
     }
-    .col-name {
-      word-break: break-word;
-    }
-    .col-time {
-      text-align: right;
-      white-space: nowrap;
-    }
-    .spawned {
-      color: green;
+    .status {
       font-weight: bold;
+      font-size: 0.95rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
     }
-    @media (max-width: 600px) {
-      .header-row, .row {
-        grid-template-columns: 1fr auto;
-      }
+    .status-on {
+      background: #2ecc71;
+      color: #000;
+    }
+    .status-ended {
+      background: #777;
+      color: #fff;
     }
   </style>
 </head>
 <body>
-  <div class="header-row">
-    <div class="col-name">Boss Name:</div>
-    <div class="col-time">Next:</div>
-  </div>
-  <div id="boss-list"></div>
+  <h1>Today's Events</h1>
+  <div id="eventList" class="event-container"></div>
 
   <script>
-    async function fetchBossData() {
-      const res = await fetch('https://api.allorigins.win/raw?url=https://laghaimnew.com/MAIN_/cache/boss_spawn.json');
-      const data = await res.json();
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTDa9wCM0huRxhBO9KXMv0bbLRXX0MdAeK_EC3mc5sM8FZyrbgRRkN-PVwFO_uYh4RHEu5E-TyRSEUZ/pub?output=csv';
 
-      const bosses = Object.values(data).sort((a, b) => new Date(a.bosstime) - new Date(b.bosstime));
-      const container = document.getElementById('boss-list');
-      container.innerHTML = '';
-
-      bosses.forEach(boss => {
-        const row = document.createElement('div');
-        row.className = 'row';
-
-        const name = document.createElement('div');
-        name.className = 'col-name';
-        name.textContent = boss.bossname || 'Unknown';
-
-        const time = document.createElement('div');
-        time.className = 'col-time';
-        const gmtTime = new Date(boss.bosstime);
-        gmtTime.setHours(gmtTime.getHours() + 10); // Convert GMT-3 to GMT+7
-        const now = new Date();
-
-        if (gmtTime <= now) {
-          time.textContent = 'spawn';
-          time.classList.add('spawned');
-        } else {
-          const timeStr = gmtTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          time.textContent = timeStr;
+    function parseCSV(url) {
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          renderEvents(results.data);
         }
-
-        row.appendChild(name);
-        row.appendChild(time);
-        container.appendChild(row);
       });
     }
 
-    fetchBossData();
-    setInterval(fetchBossData, 10000);
+    function formatTime(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function isToday(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      return date.toDateString() === now.toDateString();
+    }
+
+    function renderEvents(events) {
+      const now = new Date();
+      const list = document.getElementById("eventList");
+      list.innerHTML = "";
+
+      const todayEvents = events.filter(event => {
+        const start = new Date(event.start);
+        const end = new Date(event.end);
+        return isToday(start) || (now >= start && now <= end);
+      });
+
+      todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+      todayEvents.forEach(event => {
+        const start = new Date(event.start);
+        const end = new Date(event.end);
+        const status = now >= start && now <= end ? 'ON' : 'ENDED';
+
+        const box = document.createElement('div');
+        box.className = 'event-box';
+        box.innerHTML = `
+          <div class="event-name">${event.name}</div>
+          <div class="event-time">${formatTime(event.start)}</div>
+          <div class="status status-${status.toLowerCase()}">${status}</div>
+        `;
+        list.appendChild(box);
+      });
+    }
+
+    parseCSV(sheetUrl);
   </script>
 </body>
 </html>
